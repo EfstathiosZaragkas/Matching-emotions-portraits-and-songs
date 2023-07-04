@@ -7,6 +7,7 @@ import { faUpload } from '@fortawesome/free-solid-svg-icons';
 function App() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedOption, setSelectedOption] = useState('classical');
+  const [predictedLabels, setPredictedLabels] = useState([]);
 
   const fileInputRef = useRef(null);
 
@@ -14,13 +15,29 @@ function App() {
     const file = e.target.files[0];
     if (file) {
       setSelectedImage(URL.createObjectURL(file));
-      // Send the file to the backend for further processing
+      const formData = new FormData();
+      formData.append('image', file);
+      fetch('http://localhost:5000/upload', {
+        method: 'POST',
+        body: formData,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Error occurred during file upload');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setPredictedLabels(data.labels);
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
     }
-  
+
     // Reset the file input
     fileInputRef.current.value = null;
   };
-  
 
   const handleOptionChange = (e) => {
     setSelectedOption(e.target.value);
@@ -107,10 +124,20 @@ function App() {
               </button>
             </div>
           </div>
+          {predictedLabels.length > 0 && (
+            <div className="result-container">
+              <h3 className="predicted-labels-header">Predicted Labels:</h3>
+              <ul className="predicted-labels-list">
+                {predictedLabels.map((label, index) => (
+                  <li key={index} className="predicted-label">{label}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
-}  
+}
 
 export default App;
