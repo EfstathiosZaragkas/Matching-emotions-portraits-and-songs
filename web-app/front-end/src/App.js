@@ -15,28 +15,10 @@ function App() {
     const file = e.target.files[0];
     if (file) {
       setSelectedImage(URL.createObjectURL(file));
-      const formData = new FormData();
-      formData.append('image', file);
-      fetch('http://localhost:5000/upload', {
-        method: 'POST',
-        body: formData,
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Error occurred during file upload');
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setPredictedLabels(data.labels);
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
     }
-
+  
     // Reset the file input
-    fileInputRef.current.value = null;
+    // fileInputRef.current.value = null;
   };
 
   const handleOptionChange = (e) => {
@@ -44,8 +26,37 @@ function App() {
   };
 
   const handleMatchButtonClick = () => {
-    // Perform song matching logic here
-  };
+    if (selectedImage) {
+      fetch(selectedImage)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const file = new File([blob], 'image.png', { type: 'image/png' });
+  
+          const formData = new FormData();
+          formData.append('image', file);
+  
+          fetch('http://localhost:5000/upload', {
+            method: 'POST',
+            body: formData,
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error('Error occurred during file upload');
+              }
+              return response.json();
+            })
+            .then((data) => {
+              setPredictedLabels(data.labels);
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+    }
+  };  
 
   const handleUploadIconClick = () => {
     if (fileInputRef.current) {
@@ -85,6 +96,9 @@ function App() {
             {selectedImage && (
               <div className="selected-image-container">
                 <img src={selectedImage} alt="Selected" className="selected-image" />
+                <button className="remove-button" onClick={() => setSelectedImage(null)}>
+                  Remove
+                </button>
               </div>
             )}
           </div>
@@ -124,7 +138,7 @@ function App() {
               </button>
             </div>
           </div>
-          {predictedLabels.length > 0 && (
+          {predictedLabels && predictedLabels.length > 0 && (
             <div className="result-container">
               <h3 className="predicted-labels-header">Predicted Labels:</h3>
               <ul className="predicted-labels-list">
