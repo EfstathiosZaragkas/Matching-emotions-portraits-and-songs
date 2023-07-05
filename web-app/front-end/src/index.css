@@ -180,3 +180,21 @@ code {
 .remove-button:hover {
   background-color: #bdbdbd;
 }
+
+.waveform-container {
+  position: relative;
+}
+
+.play-button {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  padding: 10px;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
