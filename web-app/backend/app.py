@@ -42,7 +42,7 @@ def upload():
     image = np.array(image) / 255.0
     predictions = loaded_model.predict(np.expand_dims(image, axis=0))
     predicted_class_index = np.argmax(predictions, axis=1)
-    labels = {0: 'Q1', 1: 'N', 2: 'Q3', 3: 'Q2'}
+    labels = {0: 'N', 1: 'Q1', 2: 'Q2', 3: 'Q3'}
     predicted_labels = [labels[k] for k in predicted_class_index]
     print(predicted_labels)
 
